@@ -9,7 +9,9 @@ import notesAPP.Service.CustomUserDetailsService; // Correcto
 import org.springframework.beans.factory.annotation.Autowired; // Necesario para @Autowired
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity; // Necesario para ResponseEntity
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*; // Necesario para @RestController, @RequestMapping, @PostMapping
 
 import java.awt.desktop.ScreenSleepListener;
@@ -23,21 +25,38 @@ public class AuthController
     private final CustomUserDetailsService userDetailsService;
 
     @Autowired
-    public AuthController(WebAppUserRepository userRepository, CustomUserDetailsService userDetailsService) {
+    public AuthController(WebAppUserRepository userRepository, CustomUserDetailsService userDetailsService)
+    {
         this.userRepository = userRepository;
         this.userDetailsService = userDetailsService;
     }
 
     @GetMapping("/login")
-    public String login()
-    {
+    public String login(Model model, CsrfToken csrfToken) {
+        model.addAttribute("_csrf", csrfToken);
         return "login";
     }
 
+
     @GetMapping("/signup")
-    public String signup()
+    public String signup(Model model, CsrfToken csrfToken)
     {
+        model.addAttribute("_csrf", csrfToken);
         return "signup";
+    }
+
+    @CrossOrigin
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody WebAppUser userForm) {
+        try
+        {
+            userDetailsService.loginUser(userForm.getUsername(), userForm.getPassword());
+            return  ResponseEntity.ok(userForm.getUsername());
+
+        } catch (IllegalArgumentException e)
+        {
+            return ResponseEntity.status(401).body("Credenciales incorrectas");
+        }
     }
 
     @CrossOrigin
@@ -56,19 +75,7 @@ public class AuthController
         }
     }
 
-    @CrossOrigin
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody WebAppUser userForm) {
-        try
-        {
-            userDetailsService.loginUser(userForm.getUsername(), userForm.getPassword());
-            return  ResponseEntity.ok(userForm.getUsername());
 
-        } catch (IllegalArgumentException e)
-        {
-            return ResponseEntity.status(401).body("Credenciales incorrectas");
-        }
-    }
  }
 
 

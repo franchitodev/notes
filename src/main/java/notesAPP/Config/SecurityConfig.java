@@ -1,4 +1,4 @@
-package notesAPP.config;
+package notesAPP.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +44,6 @@ public class SecurityConfig
                         .maximumSessions(1)
                         .expiredUrl("/login?sessionExpired=true")
                         .sessionRegistry(sessionRegister())
-                ).csrf(csrf -> csrf.disable()
                 ).cors(cors -> cors.disable())
         ;
 

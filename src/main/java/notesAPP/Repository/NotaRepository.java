@@ -1,24 +1,19 @@
 package notesAPP.Repository;
-
-// --- Capa Acceso a datos ---
-
-
 import org.springframework.data.jpa.repository.JpaRepository;
-import notesAPP.Models.Nota;
+import notesAPP.Models.Note;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
+
 /*
-
-JpaRepository es una interfaz genérica.
-Que ya trae todos los métodos CRUD listos:
-    findAll() → devuelve todas las notas
-    findById(Long id) → busca por ID
-    save(Nota nota) → inserta o actualiza
-    deleteById(Long id) → elimina
-
-
+    =-=-=  Repositorio para acceso a notas =-=-=
 */
 
 @Repository
-public interface NotaRepository extends JpaRepository<Nota, Long>
-{}
+public interface NotaRepository extends JpaRepository<Note, Long>
+{
+    List<Note> findByOwnerUsername(String username);
+    Optional<Note> findByIdAndOwnerUsername(Long id, String username);
+}

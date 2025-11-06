@@ -1,70 +1,76 @@
 package notesAPP.Service;
-
-import notesAPP.Models.Nota;
+import notesAPP.Models.Note;
+import notesAPP.Models.WebAppUser;
 import notesAPP.Repository.NotaRepository;
+import notesAPP.Repository.WebAppUserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-// --- Logica de negocio ---
+/*
+    =-=-=  Logica para las notas =-=-=
+*/
 
 @Service
 public class NotaService
 {
-    private final NotaRepository repo;
 
-    /* [i] Inyeccion del repo  */
-    public NotaService(NotaRepository repo)
-    {this.repo = repo;}
-    
+//   ==== Dependency Injection ====
+    private final NotaRepository repoNotas;
+    private final WebAppUserRepository repoUsers;
 
-    /* === Retornar Notas === */
-    public List<Nota> devolverNotas()
+
+    public NotaService(NotaRepository repoNotas, WebAppUserRepository repoUsers)
     {
-        return repo.findAll();
+        this.repoNotas = repoNotas;
+        this.repoUsers = repoUsers;
     }
 
-    /* === Crear Nota === */
-    public Nota crearNota(Nota nota)
+
+//  ====  Methods ====
+
+    // --- Main features ---
+    public List<Note> findAllFor(String username)
     {
-        if ( nota.getTitle().isEmpty() )
-        {
-            throw new IllegalArgumentException("Error! - El titulo no puede estar vacio ");
-        }
-        return repo.save(nota);
+        return repoNotas.findByOwnerUsername(username);
     }
 
-    /* === Borrar Nota === */
-    public void borrarNota(Long id)
+    public Optional<Note> findByIdFor(Long id, String username)
     {
-        repo.deleteById(id);
+        return repoNotas.findByIdAndOwnerUsername(id, username);
     }
 
-    /* === Actualizar Nota === */
-    public Nota actualizarNota(Long id, Nota notaActualizada)
+    public Note createFor(Note note, String username)
     {
-        Optional<Nota> notaExistente = repo.findById(id);
-        if (notaExistente.isPresent())
-         {
-            notaExistente.get().setTitle(notaActualizada.getTitle());
-            notaExistente.get().setContent(notaActualizada.getContent());
-            return repo.save(notaExistente.get());
-
-         }
-        else
-            {
-                throw new IllegalArgumentException("Error! - Esta nota no existe");
-            }
+        Optional<WebAppUser> owner = repoUsers.findByUsername(username);
+        note.setOwner(owner.get());
+        return repoNotas.save(note);
     }
 
-    // === Buscar Nota por id ===
-    public Nota buscarNotaPorId(Long id)
+    public Note updateFor(Long id, Note updated, String username)
     {
-        return repo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Error! - Nota no encontrada"));
+        Note n = repoNotas.findByIdAndOwnerUsername(id, username).orElseThrow();
+        n.setTitle(updated.getTitle());
+        n.setContent(updated.getContent());
+        return repoNotas.save(n);
     }
 
+    public void deleteByIdFor(Long id, String username)
+    {
+        Note n = repoNotas.findByIdAndOwnerUsername(id, username).orElseThrow();
+        repoNotas.delete(n);
+    }
+
+
+    // --- Security features ---
+
+    /*
+        Todo:
+        [0] 2th Passwd
+        [0] AES256
+     */
 
 
 }
