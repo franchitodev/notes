@@ -1,21 +1,20 @@
 
 package notesAPP.Controller;
-
-
 import jakarta.validation.Valid;
-import notesAPP.Models.WebAppUser; // Correcto
-import notesAPP.Repository.WebAppUserRepository; // Correcto
-import notesAPP.Service.CustomUserDetailsService; // Correcto
-import org.springframework.beans.factory.annotation.Autowired; // Necesario para @Autowired
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.ResponseEntity; // Necesario para ResponseEntity
+import notesAPP.Models.WebAppUser;
+import notesAPP.Repository.WebAppUserRepository;
+import notesAPP.Service.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*; // Necesario para @RestController, @RequestMapping, @PostMapping
+import org.springframework.web.bind.annotation.*;
 
-import java.awt.desktop.ScreenSleepListener;
-import java.util.Optional;
+
+/*
+    =-=-=  Controlador - Autenticación =-=-=
+*/
 
 @Controller
 public class AuthController
@@ -46,22 +45,8 @@ public class AuthController
     }
 
     @CrossOrigin
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody WebAppUser userForm) {
-        try
-        {
-            userDetailsService.loginUser(userForm.getUsername(), userForm.getPassword());
-            return  ResponseEntity.ok(userForm.getUsername());
-
-        } catch (IllegalArgumentException e)
-        {
-            return ResponseEntity.status(401).body("Credenciales incorrectas");
-        }
-    }
-
-    @CrossOrigin
     @PostMapping("/signup")
-    public ResponseEntity<WebAppUser> signup(@Valid @RequestBody WebAppUser userForm)
+    public ResponseEntity<WebAppUser> signup(@Valid @ModelAttribute WebAppUser userForm)
     {
         try
         {

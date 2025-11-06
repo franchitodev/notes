@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
     =-=-=  Logica para la autenticacion =-=-=
  */
 
-
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService
 {

@@ -23,7 +23,7 @@ public class WebAppUser
     public WebAppUser(){};
 
 
-//  === Atributos ===
+//  ==== Atributos ====
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,7 +48,7 @@ public class WebAppUser
 
 
 
-//  === Getters & Setters ===
+//  ==== Getters & Setters ====
     public List<Note> getNotes()
     {
         return notes;

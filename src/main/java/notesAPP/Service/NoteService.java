@@ -3,7 +3,6 @@ import notesAPP.Models.Note;
 import notesAPP.Models.WebAppUser;
 import notesAPP.Repository.NotaRepository;
 import notesAPP.Repository.WebAppUserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.Optional;
 */
 
 @Service
-public class NotaService
+public class NoteService
 {
 
 //   ==== Dependency Injection ====
@@ -22,7 +21,7 @@ public class NotaService
     private final WebAppUserRepository repoUsers;
 
 
-    public NotaService(NotaRepository repoNotas, WebAppUserRepository repoUsers)
+    public NoteService(NotaRepository repoNotas, WebAppUserRepository repoUsers)
     {
         this.repoNotas = repoNotas;
         this.repoUsers = repoUsers;
@@ -62,15 +61,4 @@ public class NotaService
         Note n = repoNotas.findByIdAndOwnerUsername(id, username).orElseThrow();
         repoNotas.delete(n);
     }
-
-
-    // --- Security features ---
-
-    /*
-        Todo:
-        [0] 2th Passwd
-        [0] AES256
-     */
-
-
 }

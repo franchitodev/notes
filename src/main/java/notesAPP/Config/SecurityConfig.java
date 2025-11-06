@@ -2,6 +2,7 @@ package notesAPP.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,50 +16,38 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 // --- Capa de seguridad ---
 
 @Configuration
-@EnableWebSecurity
-public class SecurityConfig
-{
+public class SecurityConfig {
+    // Qué rutas estás operativas? autorizar
+    // Dónde está pag de login
+    // qué pasa al hacer login/logout?
+    // Bcrypt
+    // etc.
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception
-    {
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/signup", "/login").permitAll() // Permitir acceso a /login
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/login", "/signup").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login") // Especificar la página de inicio de sesión
-                        .loginProcessingUrl("/perform_login") // Confirma el endpoint de procesamiento
-                        .successHandler(successHandler())
-                        .permitAll()
+                        .loginPage("/login").permitAll()
+                        .defaultSuccessUrl("/notes", true)
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                        .invalidSessionUrl("/login")
-                        .maximumSessions(1)
-                        .expiredUrl("/login?sessionExpired=true")
-                        .sessionRegistry(sessionRegister())
-                ).cors(cors -> cors.disable())
-        ;
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout").permitAll()
+                )
+                .csrf(Customizer.withDefaults());
 
         return http.build();
+
     }
 
-    @Bean
-    public SessionRegistry sessionRegister() {
-        return new SessionRegistryImpl();
-    }
 
-    public AuthenticationSuccessHandler successHandler()
-    {
-        return (request, response, authentication) -> {
-            response.sendRedirect("/index");
-        };
-    }
 }
