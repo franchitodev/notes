@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import java.util.List;
 
 
-/*
-    =-=-=  Modelo para los usuarios de la WebAPP =-=-=
- */
+//=============================================================================
+//    =-=-=  Modelo - Usuarios =-=-=
+//=============================================================================
 
 
 @Entity
@@ -23,7 +23,7 @@ public class WebAppUser
     public WebAppUser(){};
 
 
-//  ==== Atributos ====
+//  ======= Atributos =======
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,16 +39,12 @@ public class WebAppUser
     private String role;
 
 
-    /*
-    Entidad principal (WebAppUser) posee varias notas y aseguro que las operaciones sobre la principal se propaguen a sus notas y que,
-     si una nota queda sin dueño, se elimina automáticamente.
-    */
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private java.util.List<Note> notes = new java.util.ArrayList<>();
 
 
 
-//  ==== Getters & Setters ====
+//  ======= Getters & Setters =======
     public List<Note> getNotes()
     {
         return notes;

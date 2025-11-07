@@ -4,9 +4,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
-/*
-    =-=-=  Repositorio para acceso a datos de usuarios =-=-=
-*/
+//=============================================================================
+//    =-=-=  Repositorio - Usuarios =-=-=
+//=============================================================================
+
 
 
 @Repository

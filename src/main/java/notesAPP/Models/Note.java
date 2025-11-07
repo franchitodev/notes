@@ -4,22 +4,21 @@ import jakarta.persistence.*;
 
 import java.util.Optional;
 
-/*
-    =-=-=  Modelo para las notas de los usuarios =-=-=
-*/
+//=============================================================================
+//    =-=-=  Modelo - Notas =-=-=
+//=============================================================================
+
 
 @Entity
 @Table(name = "notes")
 public class Note
 {
 
-    public Note(String title, String content)
+    public Note()
     {
-        this.title = title;
-        this.content = content;
     }
 
-//  ==== Atributos ====
+//  ======= Atributos =======
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -32,7 +31,7 @@ public class Note
     private WebAppUser owner;
 
 
-//  ==== Getters & Setters ====
+//  ======= Getters & Setters =======
     public WebAppUser getOwner()
     {
         return owner;

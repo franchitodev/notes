@@ -2,14 +2,14 @@ package notesAPP.Repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import notesAPP.Models.Note;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 import java.util.Optional;
 
 
-/*
-    =-=-=  Repositorio para acceso a notas =-=-=
-*/
+//=============================================================================
+//    =-=-=  Repositorio - Notas =-=-=
+//=============================================================================
+
 
 @Repository
 public interface NotaRepository extends JpaRepository<Note, Long>

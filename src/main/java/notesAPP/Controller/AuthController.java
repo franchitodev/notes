@@ -12,9 +12,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 
-/*
-    =-=-=  Controlador - Autenticación =-=-=
-*/
+//=============================================================================
+//    =-=-=  Controlador - Autenticación =-=-=
+//=============================================================================
+
 
 @Controller
 public class AuthController
@@ -46,21 +47,19 @@ public class AuthController
 
     @CrossOrigin
     @PostMapping("/signup")
-    public ResponseEntity<WebAppUser> signup(@Valid @ModelAttribute WebAppUser userForm)
+    public String  signup(@Valid @ModelAttribute WebAppUser userForm)
     {
         try
         {
             WebAppUser newUser = userDetailsService.registerUser(userForm);
-            return ResponseEntity.ok(newUser);
+            return "redirect:/login?success";
         }
         catch (IllegalArgumentException err)
         {
             System.out.println("Error durante el registro: " + err.getMessage());
-            return ResponseEntity.status(401).build();
+            return "redirect:/signup?error";
         }
     }
-
-
  }
 
 

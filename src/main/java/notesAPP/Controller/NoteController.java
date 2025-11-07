@@ -1,17 +1,18 @@
 package notesAPP.Controller;
 import notesAPP.Models.Note;
 import notesAPP.Service.NoteService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
-/*
-    =-=-=  Controlador - Notas =-=-=
-*/
+//=============================================================================
+//    =-=-=  Controlador - Notas =-=-=
+//=============================================================================
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/notes")
 public class NoteController
 {
 
@@ -21,54 +22,38 @@ public class NoteController
         this.noteService = noteService;
     }
 
-    @ModelAttribute("newNote")
-    public Note newNote() {
-        return new Note("",""); // nota vacía
-    }
+//  ======= Endpoints =======
 
-
-//  ==== Endpoints ====
-    @GetMapping("/")
-    public String listNotes(Model model, @AuthenticationPrincipal org.springframework.security.core.userdetails.User authUser)
+    @GetMapping
+    public String listNotes(Model model, Authentication authentication)
     {
-        model.addAttribute("notes", noteService.findAllFor(authUser.getUsername()));
-        return "index";
+        String username = authentication.getName();
+        model.addAttribute("notes", noteService.findAllFor(username));
+        model.addAttribute("noteForm", new Note()); // formulario vacío
+        return "notes";
     }
 
-    @GetMapping("/notes")
-    public String listNotesAlias(Model model,
-                                 @AuthenticationPrincipal org.springframework.security.core.userdetails.User authUser) {
-        model.addAttribute("notes", noteService.findAllFor(authUser.getUsername()));
-        return "index";
-    }
-
-    @GetMapping("/notes/{id}")
-    public String viewNote(@PathVariable Long id, Model model,@AuthenticationPrincipal org.springframework.security.core.userdetails.User authUser)
+    @PostMapping("/create")
+    public String createNote(@ModelAttribute("noteForm") Note note, Authentication authentication)
     {
-        var note = noteService.findByIdFor(id, authUser.getUsername()).orElse(null);
-        if (note == null) return "redirect:/";
-        model.addAttribute("note", note);
-        return "view-note";
+        String username = authentication.getName();
+        noteService.createFor(note, username);
+        return "redirect:/notes";
     }
 
-    @PostMapping("/notes/new")
-    public String createNote(@ModelAttribute("newNote") Note note,@AuthenticationPrincipal org.springframework.security.core.userdetails.User authUser)
+    @PostMapping("/update/{id}")
+    public String updateNote(@PathVariable Long id, @ModelAttribute Note updated, Authentication authentication)
     {
-        noteService.createFor(note, authUser.getUsername());
-        return "redirect:/";
+        String username = authentication.getName();
+        noteService.updateFor(id, updated, username);
+        return "redirect:/notes";
     }
 
-    @DeleteMapping("/notes/{id}")
-    public String deleteNote(@PathVariable Long id,@AuthenticationPrincipal org.springframework.security.core.userdetails.User authUser)
+    @GetMapping("/delete/{id}")
+    public String deleteNote(@PathVariable Long id, Authentication authentication)
     {
-        noteService.deleteByIdFor(id, authUser.getUsername());
-        return "redirect:/";
-    }
-
-    @PutMapping("/notes/{id}")
-    public String updateNote(@PathVariable Long id,@ModelAttribute("note") Note updatedNote,@AuthenticationPrincipal org.springframework.security.core.userdetails.User authUser)
-    {
-        noteService.updateFor(id, updatedNote, authUser.getUsername());
-        return "redirect:/notes/" + id;
+        String username = authentication.getName();
+        noteService.deleteByIdFor(id, username);
+        return "redirect:/notes";
     }
 }
