@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 application.properties
+V1__create_tables.sql
 application.yml
 .env
 .idea/
@@ -23,6 +24,7 @@ application.yml
 *.iws
 *.iml
 *.ipr
+
 
 ### NetBeans ###
 /nbproject/private/

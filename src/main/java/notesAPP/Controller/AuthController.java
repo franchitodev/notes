@@ -31,6 +31,12 @@ public class AuthController
         this.userDetailsService = userDetailsService;
     }
 
+    @GetMapping("/")
+    public String home()
+    {
+        return "redirect:/notes";
+    }
+
     @GetMapping("/login")
     public String login(Model model, CsrfToken csrfToken) {
         model.addAttribute("_csrf", csrfToken);

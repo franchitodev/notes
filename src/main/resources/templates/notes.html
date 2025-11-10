@@ -1,11 +1,207 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Estas logeado</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mis Notas - Aplicación de Notas</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link href="https://fonts.gstatic.com" crossorigin rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                },
+            },
+        }
+    </script>
 </head>
-<body>
-    <h1>logeao</h1>
+
+<body class="font-sans bg-black text-gray-200">
+<div class="flex flex-col min-h-screen">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-10 bg-black/50 backdrop-blur-sm">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">Mis Notas</h1>
+
+                <div class="flex items-center space-x-3">
+                    <!-- Botón Nueva Nota -->
+                    <button onclick="toggleCreateModal(true)"
+                            class="flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none">
+                        <span class="material-symbols-outlined text-base">add</span>
+                        <span class="hidden sm:inline">Nueva Nota</span>
+                    </button>
+
+                    <!-- Botón Logout -->
+                    <form th:action="@{/logout}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit"
+                                class="flex items-center justify-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none">
+                            <span class="material-symbols-outlined text-base">logout</span>
+                            <span class="hidden sm:inline">Cerrar sesión</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-grow">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div th:each="note : ${notes}"
+                     class="note-card group relative flex flex-col justify-between rounded-lg border border-gray-800 bg-gray-900/50 p-5 transition-all hover:border-indigo-500/50 hover:bg-gray-900">
+                    <div>
+                        <h2 class="text-lg font-semibold text-white mb-2"
+                            th:text="${note.title}">Título</h2>
+
+                        <p class="note-content text-sm text-gray-400 line-clamp-3"
+                           th:text="${note.content}">Contenido...</p>
+
+                        <button type="button"
+                                onclick="openViewModal(this)"
+                                class="hidden mt-2 text-indigo-400 text-sm hover:text-indigo-300"
+                                th:attr="data-title=${note.title},data-content=${note.content}">
+                            Ver más →
+                        </button>
+                    </div>
+
+                    <div class="mt-4 flex items-center justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button class="p-2 rounded-full text-gray-400 hover:bg-gray-800 hover:text-white"
+                                title="Editar"
+                                th:attr="data-id=${note.id},data-title=${note.title},data-content=${note.content}"
+                                onclick="openEditModal(this)">
+                            <span class="material-symbols-outlined text-xl">edit</span>
+                        </button>
+                        <a class="p-2 rounded-full text-gray-400 hover:bg-gray-800 hover:text-red-500"
+                           th:href="@{'/notes/delete/' + ${note.id}}" title="Eliminar">
+                            <span class="material-symbols-outlined text-xl">delete</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-black text-gray-500 text-xs text-center py-4">
+        © 2025 Aplicación de Notas. Todos los derechos reservados.
+    </footer>
+</div>
+
+<!-- Modal Crear Nota -->
+<div id="createModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-lg border border-gray-800 p-6 w-full max-w-md relative">
+        <button onclick="toggleCreateModal(false)" class="absolute top-3 right-3 text-gray-500 hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <h2 class="text-xl font-semibold text-white mb-4">Nueva Nota</h2>
+        <form th:action="@{/notes/create}" th:object="${noteForm}" method="post" class="flex flex-col gap-4">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="text" th:field="*{title}" placeholder="Título"
+                   class="rounded-md bg-gray-800 text-gray-200 p-2 border border-gray-700 focus:ring-indigo-500 focus:border-indigo-500" required/>
+            <textarea th:field="*{content}" placeholder="Contenido"
+                      class="rounded-md bg-gray-800 text-gray-200 p-2 border border-gray-700 focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
+                    Guardar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Editar Nota -->
+<div id="editModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-lg border border-gray-800 p-6 w-full max-w-md relative">
+        <button onclick="toggleEditModal(false)" class="absolute top-3 right-3 text-gray-500 hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <h2 class="text-xl font-semibold text-white mb-4">Editar Nota</h2>
+        <form id="editForm" method="post" class="flex flex-col gap-4">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input id="editTitle" name="title" type="text" placeholder="Título"
+                   class="rounded-md bg-gray-800 text-gray-200 p-2 border border-gray-700 focus:ring-indigo-500 focus:border-indigo-500" required/>
+            <textarea id="editContent" name="content" placeholder="Contenido"
+                      class="rounded-md bg-gray-800 text-gray-200 p-2 border border-gray-700 focus:ring-indigo-500 focus:border-indigo-500" required></textarea>
+            <div class="flex justify-end">
+                <button type="submit"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md">
+                    Actualizar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Ver Nota -->
+<div id="viewModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div class="bg-gray-900 rounded-lg border border-gray-800 p-6 w-full max-w-lg relative">
+        <button onclick="toggleViewModal(false)" class="absolute top-3 right-3 text-gray-500 hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <h2 id="viewTitle" class="text-xl font-semibold text-white mb-4"></h2>
+        <p id="viewContent" class="text-gray-300 whitespace-pre-line"></p>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+    // Modal Crear
+    function toggleCreateModal(show) {
+        document.getElementById('createModal').classList.toggle('hidden', !show);
+    }
+
+    // Modal Editar
+    function toggleEditModal(show) {
+        document.getElementById('editModal').classList.toggle('hidden', !show);
+    }
+
+    function openEditModal(button) {
+        const id = button.dataset.id;
+        const title = button.dataset.title;
+        const content = button.dataset.content;
+
+        document.getElementById('editTitle').value = title;
+        document.getElementById('editContent').value = content;
+        document.getElementById('editForm').action = '/notes/update/' + id;
+
+        toggleEditModal(true);
+    }
+
+    // Modal Ver Nota
+    function toggleViewModal(show) {
+        document.getElementById('viewModal').classList.toggle('hidden', !show);
+    }
+
+    function openViewModal(button) {
+        document.getElementById('viewTitle').textContent = button.dataset.title;
+        document.getElementById('viewContent').textContent = button.dataset.content;
+        toggleViewModal(true);
+    }
+
+    // Mostrar botón "Ver más" si el texto se corta
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.note-card').forEach(card => {
+            const content = card.querySelector('.note-content');
+            const btn = card.querySelector('button[type="button"]');
+            if (content.scrollHeight > content.clientHeight + 5) {
+                btn.classList.remove('hidden');
+            }
+        });
+    });
+</script>
 </body>
 </html>
